@@ -4,5 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.95"
 chrono = "0.4.39"
+jiff = "0.1.21"
 plotters = "0.3.7"
+prometheus-http-query = "0.8.3"
+tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }

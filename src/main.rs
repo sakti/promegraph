@@ -1,18 +1,13 @@
-use plotters::prelude::*;
+use anyhow::Result;
+mod promql;
 
-fn main() {
-    let root_drawing_area = BitMapBackend::new("images/0.1.png", (1024, 768)).into_drawing_area();
+use promql::get_data;
 
-    root_drawing_area.fill(&WHITE).unwrap();
+#[tokio::main]
+async fn main() -> Result<()> {
+    println!("promegraph");
 
-    let mut chart = ChartBuilder::on(&root_drawing_area)
-        .build_cartesian_2d(-3.14..3.14, -2.2..2.0)
-        .unwrap();
+    println!("{}", get_data("up").await.unwrap());
 
-    chart
-        .draw_series(LineSeries::new(
-            (-314..314).map(|x| x as f64 / 100.0).map(|x| (x, x.sin())),
-            &RED,
-        ))
-        .unwrap();
+    Ok(())
 }
