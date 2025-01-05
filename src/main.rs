@@ -6,7 +6,7 @@ fn main() {
     root_drawing_area.fill(&WHITE).unwrap();
 
     let mut chart = ChartBuilder::on(&root_drawing_area)
-        .build_cartesian_2d(-3.14..3.14, -1.2..1.2)
+        .build_cartesian_2d(-3.14..3.14, -2.2..2.0)
         .unwrap();
 
     chart
