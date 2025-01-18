@@ -10,4 +10,6 @@ clap = { version = "4.5.26", features = ["derive"] }
 jiff = "0.1.21"
 plotters = "0.3.7"
 prometheus-http-query = "0.8.3"
+rgb = "0.8.50"
+textplots = "0.8.6"
 tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }
