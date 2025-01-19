@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.95"
 chrono = "0.4.39"
 clap = { version = "4.5.26", features = ["derive"] }
 jiff = "0.1.21"
+miette = { version = "7.4.0", features = ["fancy"] }
 plotters = "0.3.7"
 prometheus-http-query = "0.8.3"
 rgb = "0.8.50"

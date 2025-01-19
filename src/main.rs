@@ -1,5 +1,5 @@
-use anyhow::Result;
 use clap::{Parser, ValueEnum};
+use miette::Result;
 
 mod promql;
 
@@ -20,8 +20,8 @@ struct Args {
     expr: String,
 
     /// Prometheus server address
-    #[arg(short, long)]
-    addr: Option<String>,
+    #[arg(short, long, default_value = "http://localhost:8428/")]
+    addr: String,
 
     #[arg(short,value_enum, default_value_t = Backend::Textplots)]
     backend: Backend,
@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
     match args.backend {
         Backend::Plotters => {
             println!("using plotters");
-            println!("{}", get_data("up").await.unwrap());
+            println!("{}", get_data(&args.addr, "up").await?);
         }
         Backend::Textplots => {
             println!("using textplots");
@@ -43,35 +43,8 @@ async fn main() -> Result<()> {
                 .lineplot(&Shape::Continuous(Box::new(|x| x.sin() / x)))
                 .display();
 
+            println!("{}", get_data(&args.addr, "up").await?);
             println!();
-            println!();
-            // new chart
-            Chart::new(300, 100, -20.0, 20.0)
-                .lineplot(&Shape::Continuous(Box::new(|x| x.cos())))
-                .lineplot(&Shape::Continuous(Box::new(|x| x.sin() / 2.0)))
-                .display();
-
-            println!();
-            let points = [
-                (-10.0, -1.0),
-                (0.0, 0.0),
-                (1.0, 1.0),
-                (2.0, 0.0),
-                (3.0, 3.0),
-                (4.0, 4.0),
-                (5.0, 3.0),
-                (9.0, 1.0),
-                (10.0, -1.0),
-            ];
-
-            println!("\ny = interpolated points");
-            Chart::default().lineplot(&Shape::Lines(&points)).display();
-
-            println!("\ny = staircase points");
-            Chart::default().lineplot(&Shape::Steps(&points)).display();
-
-            println!("\ny = scatter plot");
-            Chart::default().lineplot(&Shape::Points(&points)).display();
         }
     }
 
