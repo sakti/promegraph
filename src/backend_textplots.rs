@@ -52,16 +52,32 @@ impl Generator for BackendTextplots {
 
         for v in data.iter() {
             let metric_name = v.metric().get("__name__").cloned().unwrap_or_default();
-            let job = v.metric().get("job").cloned().unwrap_or_default();
-            let instance = v.metric().get("instance").cloned().unwrap_or_default();
 
-            // Create a label for this series
-            let series_label = if !job.is_empty() {
-                format!("{}(job={})", metric_name, job)
-            } else if !instance.is_empty() {
-                format!("{}(instance={})", metric_name, instance)
-            } else {
+            // Create a label for this series by finding distinguishing labels
+            let mut label_parts = Vec::new();
+
+            // Get all metric labels except __name__
+            let mut metric_labels: Vec<(String, String)> = v
+                .metric()
+                .iter()
+                .filter(|(key, _)| *key != "__name__")
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect();
+
+            // Sort for consistent ordering
+            metric_labels.sort_by(|a, b| a.0.cmp(&b.0));
+
+            // Build label string from all available labels
+            for (key, value) in metric_labels {
+                if !value.is_empty() {
+                    label_parts.push(format!("{}={}", key, value));
+                }
+            }
+
+            let series_label = if label_parts.is_empty() {
                 metric_name
+            } else {
+                format!("{}({})", metric_name, label_parts.join(","))
             };
 
             let points: Vec<(f64, f64)> = v
