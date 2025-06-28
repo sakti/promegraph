@@ -103,13 +103,13 @@ impl Generator for BackendTextplots {
         // Define colors for different series
         let colors = [
             RGB8::new(0, 252, 0),   // Green
-            RGB8::new(0, 0, 252),   // Blue
             RGB8::new(252, 0, 0),   // Red
             RGB8::new(252, 252, 0), // Yellow
             RGB8::new(252, 0, 252), // Magenta
             RGB8::new(0, 252, 252), // Cyan
             RGB8::new(252, 165, 0), // Orange
             RGB8::new(128, 0, 128), // Purple
+            RGB8::new(0, 0, 252),   // Blue
         ];
 
         // Find the max number of points for consistent X-axis
