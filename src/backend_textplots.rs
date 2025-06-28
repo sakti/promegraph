@@ -1,5 +1,6 @@
 use jiff::{tz::TimeZone, Timestamp};
 use miette::Result;
+use owo_colors::{OwoColorize, Rgb};
 use prometheus_http_query::response::RangeVector;
 use rgb::RGB8;
 use textplots::{
@@ -101,9 +102,9 @@ impl Generator for BackendTextplots {
 
         // Define colors for different series
         let colors = [
-            RGB8::new(252, 0, 0),   // Red
             RGB8::new(0, 252, 0),   // Green
             RGB8::new(0, 0, 252),   // Blue
+            RGB8::new(252, 0, 0),   // Red
             RGB8::new(252, 252, 0), // Yellow
             RGB8::new(252, 0, 252), // Magenta
             RGB8::new(0, 252, 252), // Cyan
@@ -128,7 +129,7 @@ impl Generator for BackendTextplots {
             (global_ymax + 0.01) as f32,
         );
 
-        println!("Plotting {} series on single chart:", all_series.len());
+        println!("Plotting {} series:", all_series.len());
 
         // Prepare data for plotting - clone everything needed for closures upfront
         let mut shapes_and_colors: Vec<(Shape, RGB8)> = Vec::new();
@@ -138,13 +139,19 @@ impl Generator for BackendTextplots {
             let vec32: Vec<(f32, f32)> =
                 points.iter().map(|(x, y)| (*x as f32, *y as f32)).collect();
 
+            let owo_color = Rgb(color.r, color.g, color.b);
+
             println!(
-                "- {}: {} points (color: RGB({}, {}, {}))",
-                series_label,
-                points.len(),
-                color.r,
-                color.g,
-                color.b
+                "{}",
+                format!(
+                    "- {}: {} points (color: RGB({}, {}, {}))",
+                    series_label,
+                    points.len(),
+                    color.r,
+                    color.g,
+                    color.b
+                )
+                .color(owo_color)
             );
 
             let shape = Shape::Continuous(Box::new(move |x| {
