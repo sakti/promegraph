@@ -50,6 +50,8 @@ impl Generator for BackendTextplots {
         let mut all_series: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
         let mut global_ymin = f64::INFINITY;
         let mut global_ymax = f64::NEG_INFINITY;
+        let mut global_time_min = f64::INFINITY;
+        let mut global_time_max = f64::NEG_INFINITY;
 
         for v in data.iter() {
             let metric_name = v.metric().get("__name__").cloned().unwrap_or_default();
@@ -88,9 +90,11 @@ impl Generator for BackendTextplots {
                 .collect();
 
             if !points.is_empty() {
-                let (_, _, ymin, ymax) = get_bounds(&points);
+                let (xmin, xmax, ymin, ymax) = get_bounds(&points);
                 global_ymin = global_ymin.min(ymin);
                 global_ymax = global_ymax.max(ymax);
+                global_time_min = global_time_min.min(xmin);
+                global_time_max = global_time_max.max(xmax);
 
                 all_series.push((series_label, points));
             }
@@ -136,8 +140,7 @@ impl Generator for BackendTextplots {
 
         for (i, (series_label, points)) in all_series.iter().enumerate() {
             let color = colors[i % colors.len()];
-            let vec32: Vec<(f32, f32)> =
-                points.iter().map(|(x, y)| (*x as f32, *y as f32)).collect();
+            let points_clone = points.clone();
 
             let owo_color = Rgb(color.r, color.g, color.b);
 
@@ -155,11 +158,56 @@ impl Generator for BackendTextplots {
             );
 
             let shape = Shape::Continuous(Box::new(move |x| {
-                let idx = x as usize;
-                if idx < vec32.len() {
-                    vec32[idx].1
-                } else {
-                    0.0
+                let chart_idx = x as usize;
+
+                if points_clone.is_empty() || chart_idx >= max_points {
+                    return 0.0;
+                }
+
+                // Map chart index to this series' time range
+                let time_progress = chart_idx as f64 / (max_points - 1).max(1) as f64;
+                let target_time =
+                    global_time_min + time_progress * (global_time_max - global_time_min);
+
+                // Find the closest data points for interpolation
+                let mut left_idx = None;
+                let mut right_idx = None;
+
+                for (idx, &(time, _)) in points_clone.iter().enumerate() {
+                    if time <= target_time {
+                        left_idx = Some(idx);
+                    }
+                    if time >= target_time && right_idx.is_none() {
+                        right_idx = Some(idx);
+                        break;
+                    }
+                }
+
+                match (left_idx, right_idx) {
+                    (Some(left), Some(right)) if left == right => {
+                        // Exact match
+                        points_clone[left].1 as f32
+                    }
+                    (Some(left), Some(right)) => {
+                        // Linear interpolation
+                        let (t1, y1) = points_clone[left];
+                        let (t2, y2) = points_clone[right];
+                        if t2 > t1 {
+                            let ratio = (target_time - t1) / (t2 - t1);
+                            (y1 + ratio * (y2 - y1)) as f32
+                        } else {
+                            y1 as f32
+                        }
+                    }
+                    (Some(left), None) => {
+                        // Use the last available point
+                        points_clone[left].1 as f32
+                    }
+                    (None, Some(right)) => {
+                        // Use the first available point
+                        points_clone[right].1 as f32
+                    }
+                    (None, None) => 0.0,
                 }
             }));
 
@@ -172,9 +220,11 @@ impl Generator for BackendTextplots {
             chart_ptr = chart_ptr.linecolorplot(shape, *color);
         }
 
-        // Use the first series for time labels
-        if let Some((_, first_points)) = all_series.first() {
-            let points_clone = first_points.clone();
+        // Use the series with the most points for time labels
+        if let Some((_, most_detailed_points)) =
+            all_series.iter().max_by_key(|(_, points)| points.len())
+        {
+            let points_clone = most_detailed_points.clone();
             chart_ptr
                 .x_label_format(LabelFormat::Custom(Box::new(move |val| {
                     let idx = val as usize;
