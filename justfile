@@ -1,7 +1,7 @@
 default:
     # cargo r -- "count(up) by (job)" -a https://demo.promlabs.com -d 60
     # cargo r -- "count(up) by (job)" -a https://demo.promlabs.com -d 1
-    cargo r -- "sum(rate(prometheus_http_requests_total[1m]))" -a https://demo.promlabs.com -d 60
+    cargo r -- "sum(rate(prometheus_http_requests_total{code='200'}[1m])) by (code) > 0" -a https://demo.promlabs.com -d 60
 
 test:
     RUSTFLAGS="-A warnings" cargo r -- "sum(rate(prometheus_http_requests_total[1m])) by (code) > 0" -a https://demo.promlabs.com -d 5
