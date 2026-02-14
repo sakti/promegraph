@@ -39,6 +39,7 @@
         buildInputs =
           pkgs.lib.optionals pkgs.stdenv.isLinux [
             pkgs.fontconfig
+            pkgs.openssl
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
             pkgs.libiconv
