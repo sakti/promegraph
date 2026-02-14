@@ -17,8 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: install linux dependecies
-        run: sudo apt-get install -y libfontconfig libfontconfig1-dev
+      - name: install linux dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfontconfig libfontconfig1-dev
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: cargo rust version
