@@ -1,16 +1,16 @@
 [package]
 name = "promegraph"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-chrono = "0.4.39"
-clap = { version = "4.5.26", features = ["derive"] }
-jiff = "0.1.21"
-miette = { version = "7.4.0", features = ["fancy"] }
-owo-colors = "4.2.2"
+chrono = "0.4.43"
+clap = { version = "4.5.58", features = ["derive"] }
+jiff = "0.2.20"
+miette = { version = "7.6.0", features = ["fancy"] }
+owo-colors = "4.2.3"
 plotters = "0.3.7"
 prometheus-http-query = "0.8.3"
-rgb = "0.8.50"
-textplots = "0.8.6"
-tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }
+rgb = "0.8.52"
+textplots = "0.8.7"
+tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
