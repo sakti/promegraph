@@ -1,4 +1,4 @@
-use jiff::{tz::TimeZone, Timestamp};
+use jiff::{Timestamp, tz::TimeZone};
 use miette::Result;
 use owo_colors::{OwoColorize, Rgb};
 use prometheus_http_query::response::RangeVector;
@@ -6,8 +6,6 @@ use rgb::RGB8;
 use textplots::{
     Chart, ColorPlot, LabelBuilder, LabelFormat, Shape, TickDisplay, TickDisplayBuilder,
 };
-
-use crate::backend::Generator;
 
 pub struct BackendTextplots {
     width: u32,
@@ -40,8 +38,8 @@ fn get_bounds(points: &[(f64, f64)]) -> (f64, f64, f64, f64) {
     (xmin, xmax, ymin, ymax)
 }
 
-impl Generator for BackendTextplots {
-    fn generate(&self, data: Vec<RangeVector>) -> Result<String> {
+impl BackendTextplots {
+    pub fn generate(&self, data: Vec<RangeVector>) -> Result<String> {
         if data.is_empty() {
             return Ok("No data".to_string());
         }

@@ -1,8 +1,13 @@
 use jiff::Timestamp;
-use miette::{miette, IntoDiagnostic, Result};
-use prometheus_http_query::{response::RangeVector, Client};
+use miette::{IntoDiagnostic, Result, miette};
+use prometheus_http_query::{Client, response::RangeVector};
 
-pub async fn get_data(addr: &str, expr: &str, step: f64, duration: u8) -> Result<Vec<RangeVector>> {
+pub async fn get_data(
+    addr: &str,
+    expr: &str,
+    step: f64,
+    duration: u16,
+) -> Result<Vec<RangeVector>> {
     let client = Client::try_from(addr).into_diagnostic()?;
     let start = Timestamp::now().as_second() - (duration as i64 * 60);
     let end = Timestamp::now().as_second();
