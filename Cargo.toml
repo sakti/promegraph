@@ -13,4 +13,6 @@ plotters = "0.3.7"
 prometheus-http-query = "0.8.3"
 rgb = "0.8.52"
 textplots = "0.8.7"
+ratatui = "0.30"
+crossterm = "0.29"
 tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
